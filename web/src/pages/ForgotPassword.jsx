@@ -10,7 +10,7 @@ import {
   FormErrorMessage,
   FormLabel,
 } from "@chakra-ui/react";
-import axios from "axios";
+import axios from "../axios";
 import { useForm } from "react-hook-form";
 
 const ForgotPassword = () => {
@@ -27,10 +27,7 @@ const ForgotPassword = () => {
 
   const submitHandler = async (values) => {
     try {
-      const response = await axios.post(
-        "http://localhost:8080/api/user/forgot-password",
-        values
-      );
+      const response = await axios.post("/api/user/forgot-password", values);
       toast({
         title: "Forgot password link",
         description: response.data.message,

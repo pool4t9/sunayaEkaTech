@@ -11,7 +11,7 @@ import {
   InputRightElement,
   useToast,
 } from "@chakra-ui/react";
-import axios from "axios";
+import axios from "../axios";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 
@@ -49,7 +49,7 @@ const UpdatePassword = () => {
     }
     try {
       await axios.post(
-        "http://localhost:8080/api/user/update-password",
+        "/api/user/update-password",
         {
           newPassword,
           oldPassword,

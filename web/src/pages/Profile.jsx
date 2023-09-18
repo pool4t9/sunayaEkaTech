@@ -14,7 +14,7 @@ import {
   Select,
   useToast,
 } from "@chakra-ui/react";
-import axios from "axios";
+import axios from "../axios";
 import { useForm } from "react-hook-form";
 
 export default function UserProfileEdit() {
@@ -49,7 +49,7 @@ export default function UserProfileEdit() {
     } = values;
     try {
       await axios.post(
-        "http://localhost:8080/api/user/update-profile",
+        "/api/user/update-profile",
         {
           contact,
           dob,
@@ -201,7 +201,7 @@ export default function UserProfileEdit() {
             <FormErrorMessage>Qualification is required</FormErrorMessage>
           </FormControl>
         </SimpleGrid>
-        <FormControl spacing={3}  >
+        <FormControl spacing={3}>
           <FormLabel>Email address</FormLabel>
           <Input
             type="email"

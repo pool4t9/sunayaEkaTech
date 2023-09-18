@@ -13,7 +13,7 @@ import {
   Text,
   useToast,
 } from "@chakra-ui/react";
-import axios from "axios";
+import axios from "../axios";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 
@@ -37,10 +37,7 @@ const Login = () => {
 
   const submitHandler = async (values) => {
     try {
-      const { data } = await axios.post(
-        "http://localhost:8080/api/user/login",
-        values
-      );
+      const { data } = await axios.post("/api/user/login", values);
       const { user, token, profileCompleted } = data.data;
       localStorage.setItem(
         "user",

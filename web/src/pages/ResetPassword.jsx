@@ -8,7 +8,7 @@ import {
   Input,
   useToast,
 } from "@chakra-ui/react";
-import axios from "axios";
+import axios from "../axios";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 
@@ -40,7 +40,7 @@ const ResetPassword = () => {
       return;
     }
     try {
-      await axios.post("http://localhost:8080/api/user/reset-password", {
+      await axios.post("/api/user/reset-password", {
         password: values.password,
         token: searchParams.get("token"),
       });

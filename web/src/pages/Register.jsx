@@ -13,7 +13,7 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
-import axios from "axios";
+import axios from "../axios";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 
@@ -40,7 +40,7 @@ const Form2 = ({ setStep }) => {
     const { contact, dob, gender, qualification, profile } = values;
     try {
       await axios.post(
-        "http://localhost:8080/api/user/update-profile",
+        "/api/user/update-profile",
         {
           contact,
           dob,
@@ -301,15 +301,12 @@ const Form1 = ({ setStep }) => {
       return;
     }
     try {
-      const response = await axios.post(
-        "http://localhost:8080/api/user/register",
-        {
-          email,
-          password,
-          first_name,
-          last_name,
-        }
-      );
+      const response = await axios.post("/api/user/register", {
+        email,
+        password,
+        first_name,
+        last_name,
+      });
       setStep(2);
       toast({
         title: "Account created",
