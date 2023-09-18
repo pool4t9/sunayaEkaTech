@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   FormControl,
+  FormErrorMessage,
   FormLabel,
   Heading,
   Input,
@@ -12,6 +13,7 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
 
 const UpdatePassword = () => {
   const [show, setShow] = useState(false);
@@ -19,21 +21,22 @@ const UpdatePassword = () => {
   const navigate = useNavigate();
 
   const toast = useToast();
-  const [formValues, setFormValues] = useState({
-    oldPassword: "",
-    newPassword: "",
-    confirmNewPassword: "",
-  });
-  const [loading, setLoading] = useState(false);
-  const { oldPassword, newPassword, confirmNewPassword } = formValues;
 
-  const changeHandler = (e) => {
-    setFormValues({ ...formValues, [e.target.name]: e.target.value });
-  };
+  const {
+    handleSubmit,
+    register,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    defaultValues: {
+      oldPassword: "",
+      newPassword: "",
+      confirmNewPassword: "",
+    },
+  });
   const user = JSON.parse(localStorage.getItem("user"));
 
-  const submitHandler = async (e) => {
-    e.preventDefault();
+  const submitHandler = async (values) => {
+    const { newPassword, confirmNewPassword, oldPassword } = values;
     if (newPassword != confirmNewPassword) {
       toast({
         title: "Invalid password",
@@ -45,7 +48,6 @@ const UpdatePassword = () => {
       return;
     }
     try {
-      setLoading(true);
       await axios.post(
         "http://localhost:8080/api/user/update-password",
         {
@@ -72,7 +74,6 @@ const UpdatePassword = () => {
         isClosable: true,
       });
     }
-    setLoading(false);
   };
 
   return (
@@ -89,7 +90,7 @@ const UpdatePassword = () => {
         m="10px auto"
         as="form"
       >
-        <FormControl>
+        <FormControl isRequired isInvalid={errors.oldPassword}>
           <FormLabel htmlFor="password" fontWeight={"normal"} mt="2%">
             Old Password
           </FormLabel>
@@ -98,9 +99,9 @@ const UpdatePassword = () => {
               pr="4.5rem"
               type={show ? "text" : "password"}
               placeholder="Enter password"
-              name="oldPassword"
-              onChange={changeHandler}
-              value={oldPassword}
+              {...register("oldPassword", {
+                required: "Old Password is required",
+              })}
             />
             <InputRightElement width="4.5rem">
               <Button h="1.75rem" size="sm" onClick={handleClick}>
@@ -108,41 +109,55 @@ const UpdatePassword = () => {
               </Button>
             </InputRightElement>
           </InputGroup>
+          <FormErrorMessage>
+            {errors.oldPassword && errors.oldPassword.message}
+          </FormErrorMessage>
         </FormControl>
 
-        <FormControl>
-          <FormLabel htmlFor="password" fontWeight={"normal"} mt="2%">
+        <FormControl isRequired isInvalid={errors.newPassword}>
+          <FormLabel htmlFor="newPassword" fontWeight={"normal"} mt="2%">
             New Password
           </FormLabel>
           <Input
             pr="4.5rem"
             type="password"
             placeholder="Enter New password"
-            name="newPassword"
-            onChange={changeHandler}
-            value={newPassword}
+            id="newPassword"
+            {...register("newPassword", {
+              required: "New Password is required",
+              minLength: { value: 8, message: "Minimum length should be 8" },
+            })}
           />
+          <FormErrorMessage>
+            {errors.newPassword && errors.newPassword.message}
+          </FormErrorMessage>
         </FormControl>
-        <FormControl>
-          <FormLabel htmlFor="password" fontWeight={"normal"} mt="2%">
+        <FormControl isRequired isInvalid={errors.confirmNewPassword}>
+          <FormLabel htmlFor="confirmNewPassword" fontWeight={"normal"} mt="2%">
             Confirm New Password
           </FormLabel>
           <Input
             pr="4.5rem"
             type="password"
+            id="confirmNewPassword"
             placeholder="Enter Confirm New password"
             name="confirmNewPassword"
-            onChange={changeHandler}
-            value={confirmNewPassword}
+            {...register("confirmNewPassword", {
+              required: "Confirm New Password is required",
+              minLength: { value: 8, message: "Minimum length should be 8" },
+            })}
           />
+          <FormErrorMessage>
+            {errors.confirmNewPassword && errors.confirmNewPassword.message}
+          </FormErrorMessage>
         </FormControl>
         <Button
           colorScheme="teal"
           variant="outline"
           w={"7rem"}
           mt={"3%"}
-          onClick={submitHandler}
-          isLoading={loading}
+          onClick={handleSubmit(submitHandler)}
+          isLoading={isSubmitting}
           loadingText="Updating"
         >
           Update

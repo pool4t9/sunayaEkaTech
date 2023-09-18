@@ -15,7 +15,7 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import { validate } from "../helper";
+import { useForm } from "react-hook-form";
 
 const Login = () => {
   const [show, setShow] = useState(false);
@@ -23,31 +23,23 @@ const Login = () => {
   const navigate = useNavigate();
 
   const toast = useToast();
-  const [formValues, setFormValues] = useState({
-    email: "",
-    password: "",
+
+  const {
+    handleSubmit,
+    register,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
-  const [loading, setLoading] = useState(false);
-  const { email, password } = formValues;
-  const [errors, setErrors] = useState({});
 
-  const changeHandler = (e) => {
-    setFormValues({ ...formValues, [e.target.name]: e.target.value });
-  };
-
-  const submitHandler = async (e) => {
-    e.preventDefault();
-    const tempError = validate(formValues);
-    setErrors(tempError);
-    if (Object.values(tempError).includes(true)) return;
+  const submitHandler = async (values) => {
     try {
-      setLoading(true);
       const { data } = await axios.post(
         "http://localhost:8080/api/user/login",
-        {
-          email,
-          password,
-        }
+        values
       );
       const { user, token, profileCompleted } = data.data;
       localStorage.setItem(
@@ -76,7 +68,6 @@ const Login = () => {
         isClosable: true,
       });
     }
-    setLoading(false);
   };
 
   const user = localStorage.getItem("user") || null;
@@ -99,21 +90,27 @@ const Login = () => {
         m="10px auto"
         as="form"
       >
-        <FormControl mt="2%" isInvalid={errors.emailError}>
+        <FormControl mt="2%" isInvalid={errors.email}>
           <FormLabel htmlFor="email" fontWeight={"normal"}>
             Email address
           </FormLabel>
           <Input
             id="email"
             type="email"
-            name="email"
-            value={email}
-            onChange={changeHandler}
+            {...register("email", {
+              required: "Email is required",
+              pattern: {
+                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                message: "Invalid email address",
+              },
+            })}
           />
-          <FormErrorMessage>Email is required</FormErrorMessage>
+          <FormErrorMessage>
+            {errors.email && errors.email.message}
+          </FormErrorMessage>
         </FormControl>
 
-        <FormControl isInvalid={errors.emailError}>
+        <FormControl isInvalid={errors.password}>
           <FormLabel htmlFor="password" fontWeight={"normal"} mt="2%">
             Password
           </FormLabel>
@@ -122,9 +119,10 @@ const Login = () => {
               pr="4.5rem"
               type={show ? "text" : "password"}
               placeholder="Enter password"
-              name="password"
-              value={password}
-              onChange={changeHandler}
+              {...register("password", {
+                required: "Password is required",
+                minLength: { value: 8, message: "Minimum length should be 8" },
+              })}
             />
             <InputRightElement width="4.5rem">
               <Button h="1.75rem" size="sm" onClick={handleClick}>
@@ -132,7 +130,9 @@ const Login = () => {
               </Button>
             </InputRightElement>
           </InputGroup>
-          <FormErrorMessage>Password is required</FormErrorMessage>
+          <FormErrorMessage>
+            {errors.password && errors.password.message}
+          </FormErrorMessage>
         </FormControl>
         <Stack
           direction={{ base: "column", sm: "row" }}
@@ -152,8 +152,8 @@ const Login = () => {
           variant="outline"
           w={"7rem"}
           mt={"3%"}
-          onClick={submitHandler}
-          isLoading={loading}
+          onClick={handleSubmit(submitHandler)}
+          isLoading={isSubmitting}
           loadingText="Submitting"
         >
           Login

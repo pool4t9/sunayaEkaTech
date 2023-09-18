@@ -14,42 +14,40 @@ import {
   Select,
   useToast,
 } from "@chakra-ui/react";
-import { useState } from "react";
 import axios from "axios";
+import { useForm } from "react-hook-form";
 
 export default function UserProfileEdit() {
   const toast = useToast();
-  const [loading, setLoading] = useState(false);
   const user = JSON.parse(localStorage.getItem("user"));
-  const [formValues, setFormValues] = useState({
-    first_name: user.first_name || "",
-    last_name: user.last_name || "",
-    email: user.email || "",
-    contact: user.contact || "",
-    dob: user.dob || "",
-    gender: user.gender || "",
-    qualification: user.qualification || "",
-    profile: user.profile || "",
+  const {
+    handleSubmit,
+    register,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    defaultValues: {
+      first_name: user?.first_name || "",
+      last_name: user?.last_name || "",
+      contact: user?.contact || "",
+      dob: user?.dob || "",
+      gender: user?.gender || "",
+      qualification: user?.qualification || "",
+      profile: user?.profile || "",
+      email: user?.email || "",
+    },
   });
 
-  const {
-    first_name,
-    last_name,
-    email,
-    contact,
-    dob,
-    qualification,
-    profile,
-    gender,
-  } = formValues;
-
-  const changeHandler = (e) => {
-    setFormValues({ ...formValues, [e.target.name]: e.target.value });
-  };
-  const submitHandler = async (e) => {
-    e.preventDefault();
+  const submitHandler = async (values) => {
+    const {
+      first_name,
+      last_name,
+      contact,
+      dob,
+      gender,
+      profile,
+      qualification,
+    } = values;
     try {
-      setLoading(true);
       await axios.post(
         "http://localhost:8080/api/user/update-profile",
         {
@@ -90,7 +88,6 @@ export default function UserProfileEdit() {
         isClosable: true,
       });
     }
-    setLoading(false);
   };
 
   return (
@@ -111,101 +108,115 @@ export default function UserProfileEdit() {
 
         <FormControl id="userName">
           <Center>
-            <Avatar size="xl" src={profile}></Avatar>
+            <Avatar size="xl" src={""}></Avatar>
           </Center>
         </FormControl>
         <SimpleGrid columns={{ sm: 1, md: 2 }} spacing={3}>
-          <FormControl>
+          <FormControl isRequired isInvalid={errors.first_name}>
             <FormLabel htmlFor="first_name">First Name</FormLabel>
             <Input
               type="text"
               id="first_name"
               name="first_name"
-              value={first_name}
-              onChange={changeHandler}
+              {...register("first_name", {
+                required: "First Name is required",
+              })}
             />
-            <FormErrorMessage>First Name is required</FormErrorMessage>
+            <FormErrorMessage>
+              {errors.first_name && errors.first_name.message}
+            </FormErrorMessage>
           </FormControl>
           <FormControl>
             <FormLabel htmlFor="last_name">Last Name</FormLabel>
-            <Input
-              type="text"
-              id="last_name"
-              name="last_name"
-              value={last_name}
-              onChange={changeHandler}
-            />
-            <FormErrorMessage>Last Name is required</FormErrorMessage>
+            <Input type="text" id="last_name" {...register("last_name")} />
           </FormControl>
         </SimpleGrid>
         <SimpleGrid columns={{ sm: 1, md: 2 }} spacing={3}>
-          <FormControl>
+          <FormControl isRequired isInvalid={errors.contact}>
             <FormLabel htmlFor="contact">Contact</FormLabel>
             <Input
               type="text"
               id="contact"
-              name="contact"
-              value={contact}
-              onChange={changeHandler}
+              {...register("contact", {
+                required: "contact is required",
+              })}
             />
-            <FormErrorMessage>Contact is required</FormErrorMessage>
+            <FormErrorMessage>
+              {errors.contact && errors.contact.message}
+            </FormErrorMessage>
           </FormControl>
-          <FormControl>
+          <FormControl isRequired isInvalid={errors.dob}>
             <FormLabel htmlFor="dob">DOB</FormLabel>
             <Input
               type="date"
               id="dob"
               name="dob"
-              value={dob}
-              onChange={changeHandler}
+              {...register("dob", {
+                required: "dob is required",
+              })}
             />
-            <FormErrorMessage>Date of Birth is required</FormErrorMessage>
+            <FormErrorMessage>
+              {errors.dob && errors.dob.message}
+            </FormErrorMessage>
           </FormControl>
         </SimpleGrid>
         <SimpleGrid columns={{ sm: 1, md: 2 }} spacing={3}>
-          <FormControl className="form-floating">
+          <FormControl
+            className="form-floating"
+            isRequired
+            isInvalid={errors.gender}
+          >
             <FormLabel htmlFor="gender">Gender</FormLabel>
             <Select
               placeholder="Select Gender"
-              value={gender}
-              onChange={changeHandler}
-              name="gender"
+              {...register("gender", {
+                required: "gender is required",
+              })}
             >
               <option value="male">Male</option>
               <option value="female">Female</option>
               <option value="other">Other</option>
             </Select>
+            <FormErrorMessage>
+              {errors.gender && errors.gender.message}
+            </FormErrorMessage>
           </FormControl>
-          <FormControl className="form-floating">
+          <FormControl
+            className="form-floating"
+            isRequired
+            isInvalid={errors.qualification}
+          >
             <FormLabel htmlFor="qualification">Highest Qualification</FormLabel>
             <Select
               placeholder="Select Qualification"
-              value={qualification}
-              onChange={changeHandler}
-              name="qualification"
+              {...register("qualification", {
+                required: "qualification is required",
+              })}
             >
               <option value="">All</option>
               <option value="option1">Option 1</option>
               <option value="option2">Option 2</option>
               <option value="option3">Option 3</option>
             </Select>
+            <FormErrorMessage>Qualification is required</FormErrorMessage>
           </FormControl>
         </SimpleGrid>
-        <FormControl spacing={3}>
+        <FormControl spacing={3}  >
           <FormLabel>Email address</FormLabel>
           <Input
             type="email"
-            value={email}
-            name="email"
-            onChange={changeHandler}
+            placeholder="Email"
+            {...register("email", {
+              required: "Email is required",
+            })}
             disabled
           />
         </FormControl>
         <Button
           colorScheme="green"
           variant="outline"
-          onClick={submitHandler}
-          isLoading={loading}
+          onClick={handleSubmit(submitHandler)}
+          isLoading={isSubmitting}
           loadingText="Updating"
         >
           Update

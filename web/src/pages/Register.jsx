@@ -15,43 +15,30 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import { validate } from "../helper";
+import { useForm } from "react-hook-form";
 
 // eslint-disable-next-line react/prop-types
 const Form2 = ({ setStep }) => {
   const toast = useToast();
   const user = JSON.parse(localStorage.getItem("user"));
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
-  const [formValues, setFormValues] = useState({
-    first_name: user?.first_name || "",
-    last_name: user?.last_name || "",
-    contact: user?.contact || "",
-    dob: user?.dob || "",
-    gender: user?.gender || "",
-    qualification: user?.qualification || "",
-    profile: user?.profile || "",
-  });
-
   const {
-    first_name,
-    last_name,
-    contact,
-    dob,
-    qualification,
-    gender,
-    profile,
-  } = formValues;
-  const changeHandler = (e) => {
-    setFormValues({ ...formValues, [e.target.name]: e.target.value });
-  };
-  const submitHandler = async (e) => {
-    e.preventDefault();
-    const tempError = validate(formValues);
-    setErrors(tempError);
-    if (Object.values(tempError).includes(true)) return;
+    handleSubmit,
+    register,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    defaultValues: {
+      first_name: user?.first_name || "",
+      last_name: user?.last_name || "",
+      contact: user?.contact || "",
+      dob: user?.dob || "",
+      gender: user?.gender || "",
+      qualification: user?.qualification || "",
+      profile: user?.profile || "",
+    },
+  });
+  const submitHandler = async (values) => {
+    const { contact, dob, gender, qualification, profile } = values;
     try {
-      setLoading(true);
       await axios.post(
         "http://localhost:8080/api/user/update-profile",
         {
@@ -84,7 +71,6 @@ const Form2 = ({ setStep }) => {
         isClosable: true,
       });
     }
-    setLoading(false);
   };
 
   const uploadImage = async (e) => {
@@ -102,7 +88,7 @@ const Form2 = ({ setStep }) => {
           },
         }
       );
-      setFormValues({ ...formValues, profile: response.data.imageUrl });
+      // setFormValues({ ...formValues, profile: response.data.imageUrl });
       toast({
         title: "Profile Updated successfully",
         description: response.data.message,
@@ -127,7 +113,7 @@ const Form2 = ({ setStep }) => {
         Update Your Details
       </Heading>
       <Flex mt={"2%"}>
-        <FormControl mr="5%" isInvalid={errors.first_nameError}>
+        <FormControl mr="5%">
           <FormLabel htmlFor="first-name" fontWeight={"normal"}>
             First name
           </FormLabel>
@@ -135,11 +121,9 @@ const Form2 = ({ setStep }) => {
             id="first-name"
             placeholder="First name"
             name="first_name"
-            value={first_name}
-            onChange={changeHandler}
             isDisabled={true}
+            {...register("first_name")}
           />
-          <FormErrorMessage>First Name is required</FormErrorMessage>
         </FormControl>
 
         <FormControl>
@@ -148,16 +132,15 @@ const Form2 = ({ setStep }) => {
           </FormLabel>
           <Input
             id="last-name"
-            placeholder="First name"
+            placeholder="Last name"
             name="last_name"
-            value={last_name}
-            onChange={changeHandler}
+            {...register("last_name")}
             isDisabled={true}
           />
         </FormControl>
       </Flex>
       <Flex mt={"2%"}>
-        <FormControl mr="5%" isInvalid={errors.contactError}>
+        <FormControl mr="5%" isInvalid={errors.contact}>
           <FormLabel htmlFor="contact" fontWeight={"normal"}>
             Contact
           </FormLabel>
@@ -166,12 +149,15 @@ const Form2 = ({ setStep }) => {
             id="contact"
             placeholder="Contact Number"
             name="contact"
-            value={contact}
-            onChange={changeHandler}
+            {...register("contact", {
+              required: "contact is required",
+            })}
           />
-          <FormErrorMessage>Contact is required</FormErrorMessage>
+          <FormErrorMessage>
+            {errors.contact && errors.contact.message}
+          </FormErrorMessage>
         </FormControl>
-        <FormControl isInvalid={errors.dobError}>
+        <FormControl isInvalid={errors.dob}>
           <FormLabel htmlFor="dob" fontWeight={"normal"}>
             DOB
           </FormLabel>
@@ -179,10 +165,13 @@ const Form2 = ({ setStep }) => {
             type="date"
             id="dob"
             name="dob"
-            value={dob}
-            onChange={changeHandler}
+            {...register("dob", {
+              required: "dob is required",
+            })}
           />
-          <FormErrorMessage>Date of Birth is required</FormErrorMessage>
+          <FormErrorMessage>
+            {errors.dob && errors.dob.message}
+          </FormErrorMessage>
         </FormControl>
       </Flex>
 
@@ -190,7 +179,7 @@ const Form2 = ({ setStep }) => {
         <FormControl
           className="form-floating"
           mr={"5%"}
-          isInvalid={errors.genderError}
+          isInvalid={errors.gender}
         >
           <FormLabel
             htmlFor="gender"
@@ -205,26 +194,26 @@ const Form2 = ({ setStep }) => {
           </FormLabel>
           <Select
             placeholder="Select Gender"
-            selected={gender}
-            onChange={changeHandler}
-            name="gender"
+            // selected={gender}
             id="gender"
             focusBorderColor="brand.400"
             shadow="sm"
             size="sm"
             w="full"
             rounded="md"
+            {...register("gender", {
+              required: "gender is required",
+            })}
           >
             <option value="male">Male</option>
             <option value="female">Female</option>
             <option value="other">Other</option>
           </Select>
-          <FormErrorMessage>Gender is required</FormErrorMessage>
+          <FormErrorMessage>
+            {errors.gender && errors.gender.message}
+          </FormErrorMessage>
         </FormControl>
-        <FormControl
-          className="form-floating"
-          isInvalid={errors.qualificationError}
-        >
+        <FormControl className="form-floating" isInvalid={errors.qualification}>
           <FormLabel
             htmlFor="qualification"
             fontSize="sm"
@@ -238,8 +227,8 @@ const Form2 = ({ setStep }) => {
           </FormLabel>
           <Select
             placeholder="Select Qualification"
-            selected={qualification}
-            onChange={changeHandler}
+            // selected={qualification}
+            // onChange={changeHandler}
             name="qualification"
             id="qualification"
             focusBorderColor="brand.400"
@@ -247,6 +236,9 @@ const Form2 = ({ setStep }) => {
             size="sm"
             w="full"
             rounded="md"
+            {...register("qualification", {
+              required: "qualification is required",
+            })}
           >
             <option value="">All</option>
             <option value="option1">Option 1</option>
@@ -267,8 +259,8 @@ const Form2 = ({ setStep }) => {
         variant="outline"
         w={"7rem"}
         mt={"3%"}
-        onClick={submitHandler}
-        isLoading={loading}
+        onClick={handleSubmit(submitHandler)}
+        isLoading={isSubmitting}
         loadingText="Submitting"
       >
         Submit
@@ -280,27 +272,24 @@ const Form2 = ({ setStep }) => {
 // eslint-disable-next-line react/prop-types
 const Form1 = ({ setStep }) => {
   const toast = useToast();
-  const [formValues, setFormValues] = useState({
-    first_name: "",
-    last_name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
+
+  const {
+    handleSubmit,
+    register,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    defaultValues: {
+      first_name: "",
+      last_name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
   });
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
-  const { first_name, last_name, email, password, confirmPassword } =
-    formValues;
 
-  const changeHandler = (e) => {
-    setFormValues({ ...formValues, [e.target.name]: e.target.value });
-  };
+  const submitHandler = async (values) => {
+    const { password, confirmPassword, email, first_name, last_name } = values;
 
-  const submitHandler = async (e) => {
-    e.preventDefault();
-    const tempError = validate(formValues);
-    setErrors(tempError);
-    if (Object.values(tempError).includes(true)) return;
     if (password != confirmPassword) {
       toast({
         title: "Invalid password",
@@ -312,7 +301,6 @@ const Form1 = ({ setStep }) => {
       return;
     }
     try {
-      setLoading(true);
       const response = await axios.post(
         "http://localhost:8080/api/user/register",
         {
@@ -350,7 +338,6 @@ const Form1 = ({ setStep }) => {
         isClosable: true,
       });
     }
-    setLoading(false);
   };
 
   return (
@@ -359,7 +346,7 @@ const Form1 = ({ setStep }) => {
         User Registration
       </Heading>
       <Flex mt={"2%"}>
-        <FormControl mr="5%" isInvalid={errors.first_nameError}>
+        <FormControl mr="5%" isInvalid={errors.first_name} isRequired>
           <FormLabel htmlFor="first-name" fontWeight={"normal"}>
             First name
           </FormLabel>
@@ -367,10 +354,13 @@ const Form1 = ({ setStep }) => {
             id="first-name"
             placeholder="First name"
             name="first_name"
-            value={first_name}
-            onChange={changeHandler}
+            {...register("first_name", {
+              required: "First Name is required",
+            })}
           />
-          <FormErrorMessage>First Name is required</FormErrorMessage>
+          <FormErrorMessage>
+            {errors.first_name && errors.first_name.message}
+          </FormErrorMessage>
         </FormControl>
 
         <FormControl>
@@ -381,26 +371,27 @@ const Form1 = ({ setStep }) => {
             id="last-name"
             placeholder="Last name"
             name="last_name"
-            value={last_name}
-            onChange={changeHandler}
+            {...register("last_name")}
           />
         </FormControl>
       </Flex>
-      <FormControl mt="2%" isInvalid={errors.emailError}>
+      <FormControl mt="2%" isInvalid={errors.email} isRequired>
         <FormLabel htmlFor="email" fontWeight={"normal"}>
           Email address
         </FormLabel>
         <Input
           id="email"
           type="email"
-          value={email}
-          name="email"
-          onChange={changeHandler}
+          {...register("email", {
+            required: "Email is required",
+          })}
         />
-        <FormErrorMessage>Email is required</FormErrorMessage>
+        <FormErrorMessage>
+          {errors.email && errors.email.message}
+        </FormErrorMessage>
       </FormControl>
 
-      <FormControl isInvalid={errors.passwordError}>
+      <FormControl isInvalid={errors.password} isRequired>
         <FormLabel htmlFor="password" fontWeight={"normal"} mt="2%">
           Password
         </FormLabel>
@@ -409,18 +400,21 @@ const Form1 = ({ setStep }) => {
           type="password"
           id="password"
           placeholder="Enter password"
-          name="password"
-          value={password}
-          onChange={changeHandler}
+          {...register("password", {
+            required: "Password is required",
+            minLength: { value: 8, message: "Minimum length should be 8" },
+          })}
         />
-        <FormErrorMessage>Password is required</FormErrorMessage>
+        <FormErrorMessage>
+          {errors.password && errors.password.message}
+        </FormErrorMessage>
       </FormControl>
-      <FormControl>
+      <FormControl isInvalid={errors.confirmPassword} isRequired>
         <FormLabel
           htmlFor="confirmPassword"
           fontWeight={"normal"}
           mt="2%"
-          isInvalid={errors.confirmPasswordError}
+          isInvalid={errors.confirmPassword}
         >
           Confirm Password
         </FormLabel>
@@ -429,18 +423,22 @@ const Form1 = ({ setStep }) => {
           id="confirmPassword"
           name="confirmPassword"
           placeholder="Confirm Password"
-          value={confirmPassword}
-          onChange={changeHandler}
+          {...register("confirmPassword", {
+            required: "Confirm Password is required",
+            minLength: { value: 8, message: "Minimum length should be 8" },
+          })}
         />
-        <FormErrorMessage>Confirm password is required</FormErrorMessage>
+        <FormErrorMessage>
+          {errors.confirmPassword && errors.confirmPassword.message}
+        </FormErrorMessage>
       </FormControl>
       <Button
         colorScheme="teal"
         variant="outline"
         w={"9rem"}
         mt={"3%"}
-        onClick={submitHandler}
-        isLoading={loading}
+        onClick={handleSubmit(submitHandler)}
+        isLoading={isSubmitting}
         loadingText="Submitting"
       >
         Create Account

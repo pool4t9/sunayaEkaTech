@@ -5,29 +5,31 @@ import {
   Heading,
   Input,
   Stack,
-  Text,
   useColorModeValue,
   useToast,
   FormErrorMessage,
+  FormLabel,
 } from "@chakra-ui/react";
-import { useState } from "react";
 import axios from "axios";
+import { useForm } from "react-hook-form";
 
 const ForgotPassword = () => {
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
+  const {
+    handleSubmit,
+    register,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    defaultValues: {
+      email: "",
+    },
+  });
   const toast = useToast();
 
-  const submitHandler = async (e) => {
-    e.preventDefault();
-    if (!email.length) return;
+  const submitHandler = async (values) => {
     try {
-      setLoading(true);
       const response = await axios.post(
         "http://localhost:8080/api/user/forgot-password",
-        {
-          email,
-        }
+        values
       );
       toast({
         title: "Forgot password link",
@@ -45,7 +47,6 @@ const ForgotPassword = () => {
         isClosable: true,
       });
     }
-    setLoading(false);
   };
 
   return (
@@ -62,22 +63,24 @@ const ForgotPassword = () => {
         <Heading lineHeight={1.1} fontSize={{ base: "2xl", md: "3xl" }}>
           Forgot your password?
         </Heading>
-        <Text
-          fontSize={{ base: "sm", sm: "md" }}
-          color={useColorModeValue("gray.800", "gray.400")}
-        >
-          You&apos;ll get an email with a reset link
-        </Text>
-        <FormControl id="email" isInvalid={!email}>
+        <FormControl id="email" isInvalid={errors.email} isRequired>
+          <FormLabel htmlFor="email" fontWeight={"normal"}>
+            Email address
+          </FormLabel>
           <Input
             placeholder="your-email@example.com"
             type="email"
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-            }}
+            {...register("email", {
+              required: "Email is required",
+              pattern: {
+                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                message: "Invalid email address",
+              },
+            })}
           />
-          <FormErrorMessage>Email is required</FormErrorMessage>
+          <FormErrorMessage>
+            {errors.email && errors.email.message}
+          </FormErrorMessage>
         </FormControl>
         <Stack spacing={6}>
           <Button
@@ -87,8 +90,8 @@ const ForgotPassword = () => {
               bg: "blue.500",
             }}
             variant="outline"
-            onClick={submitHandler}
-            isLoading={loading}
+            onClick={handleSubmit(submitHandler)}
+            isLoading={isSubmitting}
             loadingText="Requesting"
           >
             Request Reset

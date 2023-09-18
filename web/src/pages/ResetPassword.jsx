@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Box,
   Button,
@@ -11,31 +10,26 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { validate } from "../helper";
+import { useForm } from "react-hook-form";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
 
   const [searchParams] = useSearchParams();
   const toast = useToast();
-  const [formValues, setFormValues] = useState({
-    password: "",
-    confirmPassword: "",
+  const {
+    handleSubmit,
+    register,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    defaultValues: {
+      password: "",
+      confirmPassword: "",
+    },
   });
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
-  const { password, confirmPassword } = formValues;
 
-  const changeHandler = (e) => {
-    setFormValues({ ...formValues, [e.target.name]: e.target.value });
-  };
-
-  const submitHandler = async (e) => {
-    e.preventDefault();
-    const tempError = validate(formValues);
-    setErrors(tempError);
-    if (Object.values(tempError).includes(true)) return;
-    if (password != confirmPassword) {
+  const submitHandler = async (values) => {
+    if (values.password != values.confirmPassword) {
       toast({
         title: "Invalid password",
         description: " New Password and Confirm Password are not matched",
@@ -46,9 +40,8 @@ const ResetPassword = () => {
       return;
     }
     try {
-      setLoading(true);
       await axios.post("http://localhost:8080/api/user/reset-password", {
-        password,
+        password: values.password,
         token: searchParams.get("token"),
       });
       toast({
@@ -69,7 +62,6 @@ const ResetPassword = () => {
         isClosable: true,
       });
     }
-    setLoading(false);
   };
 
   return (
@@ -86,7 +78,7 @@ const ResetPassword = () => {
         m="10px auto"
         as="form"
       >
-        <FormControl isInvalid={errors.passwordError}>
+        <FormControl isRequired isInvalid={errors.password}>
           <FormLabel htmlFor="password" fontWeight={"normal"} mt="2%">
             New Password
           </FormLabel>
@@ -94,13 +86,16 @@ const ResetPassword = () => {
             pr="4.5rem"
             type="password"
             placeholder="Enter New password"
-            name="password"
-            onChange={changeHandler}
-            value={password}
+            {...register("password", {
+              required: "Password is required",
+              minLength: { value: 8, message: "Minimum length should be 8" },
+            })}
           />
-          <FormErrorMessage>Password is required</FormErrorMessage>
+          <FormErrorMessage>
+            {errors.password && errors.password.message}
+          </FormErrorMessage>
         </FormControl>
-        <FormControl isInvalid={errors.confirmPasswordError}>
+        <FormControl isRequired isInvalid={errors.confirmPassword}>
           <FormLabel htmlFor="password" fontWeight={"normal"} mt="2%">
             Confirm New Password
           </FormLabel>
@@ -108,19 +103,22 @@ const ResetPassword = () => {
             pr="4.5rem"
             type="password"
             placeholder="Enter Confirm New password"
-            name="confirmPassword"
-            onChange={changeHandler}
-            value={confirmPassword}
+            {...register("confirmPassword", {
+              required: "Password is required",
+              minLength: { value: 8, message: "Minimum length should be 8" },
+            })}
           />
-          <FormErrorMessage>Confirm password is required</FormErrorMessage>
+          <FormErrorMessage>
+            {errors.confirmPassword && errors.confirmPassword}
+          </FormErrorMessage>
         </FormControl>
         <Button
           colorScheme="teal"
           variant="outline"
           w={"7rem"}
           mt={"3%"}
-          onClick={submitHandler}
-          isLoading={loading}
+          onClick={handleSubmit(submitHandler)}
+          isLoading={isSubmitting}
           loadingText="Resetting"
         >
           Reset
