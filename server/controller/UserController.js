@@ -1,6 +1,7 @@
 const AuthService = require("../services/AuthService");
 const UserServices = require("../services/UserService");
 const EmailService = require("../services/EmailService");
+const fs = require("fs");
 
 const UserController = {
   userRegistration: async function (req, res) {
@@ -244,6 +245,25 @@ const UserController = {
           error: e.message,
         });
       }
+    } catch (e) {
+      return res.status(500).json({
+        success: false,
+        message: "server error, please try again",
+        error: e.message,
+      });
+    }
+  },
+  uploadFileUsingBuffer: async function (req, res) {
+    try {
+      const img = fs.readFileSync(req.file.path);
+      const base64String = Buffer.from(img).toString("base64");
+
+      const withPrefix = "data:image/png;base64," + base64String;
+      return res.status(201).json({
+        success: true,
+        data: { imageUrl: req.file.path, url: withPrefix },
+        message: "Image Uploaded successfully",
+      });
     } catch (e) {
       return res.status(500).json({
         success: false,

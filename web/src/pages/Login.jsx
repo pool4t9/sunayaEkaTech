@@ -50,6 +50,7 @@ const Login = () => {
           qualification: user.qualification,
           email: user.email,
           token: token,
+          profile: user.profile,
         })
       );
       localStorage.setItem("step", profileCompleted ? 3 : 2);

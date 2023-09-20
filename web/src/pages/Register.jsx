@@ -21,6 +21,7 @@ import { useForm } from "react-hook-form";
 const Form2 = ({ setStep }) => {
   const toast = useToast();
   const user = JSON.parse(localStorage.getItem("user"));
+  const [profile, setProfile] = useState("");
   const {
     handleSubmit,
     register,
@@ -37,7 +38,7 @@ const Form2 = ({ setStep }) => {
     },
   });
   const submitHandler = async (values) => {
-    const { contact, dob, gender, qualification, profile } = values;
+    const { contact, dob, gender, qualification } = values;
     try {
       await axios.post(
         "/api/user/update-profile",
@@ -58,9 +59,18 @@ const Form2 = ({ setStep }) => {
         duration: 3000,
         isClosable: true,
       });
-      let updatedUser = { ...user, contact, dob, gender, qualification };
+      let updatedUser = {
+        ...user,
+        contact,
+        dob,
+        gender,
+        qualification,
+        profile,
+      };
+      console.log(updatedUser);
       localStorage.setItem("user", JSON.stringify(updatedUser));
       localStorage.setItem("step", 3);
+      window.location = "/profile";
       return;
     } catch (e) {
       toast({
@@ -72,7 +82,6 @@ const Form2 = ({ setStep }) => {
       });
     }
   };
-
   const uploadImage = async (e) => {
     try {
       const file = e.target.files[0];
@@ -88,7 +97,7 @@ const Form2 = ({ setStep }) => {
           },
         }
       );
-      // setFormValues({ ...formValues, profile: response.data.imageUrl });
+      setProfile(response.data.data.imageUrl);
       toast({
         title: "Profile Updated successfully",
         description: response.data.message,
@@ -194,7 +203,6 @@ const Form2 = ({ setStep }) => {
           </FormLabel>
           <Select
             placeholder="Select Gender"
-            // selected={gender}
             id="gender"
             focusBorderColor="brand.400"
             shadow="sm"
@@ -202,7 +210,7 @@ const Form2 = ({ setStep }) => {
             w="full"
             rounded="md"
             {...register("gender", {
-              required: "gender is required",
+              required: "Gender is required",
             })}
           >
             <option value="male">Male</option>
@@ -245,14 +253,25 @@ const Form2 = ({ setStep }) => {
             <option value="option2">Option 2</option>
             <option value="option3">Option 3</option>
           </Select>
-          <FormErrorMessage>Qualification is required</FormErrorMessage>
+          <FormErrorMessage>
+            {errors.qualification && errors.qualification.message}
+          </FormErrorMessage>
         </FormControl>
       </Flex>
-      <FormControl>
+      <FormControl isInvalid={errors.profile}>
         <FormLabel htmlFor="profile" fontWeight={"normal"}>
           Profile
         </FormLabel>
-        <input type="file" id="profile" name="profile" onChange={uploadImage} />
+        <input
+          type="file"
+          id="profile"
+          name="profile"
+          accept="image/png, image/jpeg"
+          onChange={uploadImage}
+        />
+        <FormErrorMessage>
+          {errors.profile && errors.profile.message}
+        </FormErrorMessage>
       </FormControl>
       <Button
         colorScheme="teal"

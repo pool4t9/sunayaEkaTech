@@ -1,14 +1,8 @@
 import { Link as ReactRouterLink } from "react-router-dom";
-import {
-  Box,
-  Heading,
-  Container,
-  Text,
-  Button,
-  Stack,
-} from "@chakra-ui/react";
+import { Box, Heading, Container, Text, Button, Stack } from "@chakra-ui/react";
 
 const Hero = () => {
+  const user = JSON.parse(localStorage.getItem("user"));
   return (
     <Container maxW={"3xl"}>
       <Stack
@@ -44,7 +38,7 @@ const Hero = () => {
             bg={"green.400"}
             rounded={"full"}
             px={6}
-            to={"/login"}
+            to={user ? "/profile" : "/login"}
             _hover={{
               bg: "green.500",
             }}

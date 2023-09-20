@@ -13,17 +13,23 @@ import {
   FormErrorMessage,
   Select,
   useToast,
+  AvatarBadge,
+  IconButton,
 } from "@chakra-ui/react";
 import axios from "../axios";
 import { useForm } from "react-hook-form";
+import { EditIcon } from "@chakra-ui/icons";
+import { useRef } from "react";
 
 export default function UserProfileEdit() {
   const toast = useToast();
+  const fileInputRef = useRef(null);
   const user = JSON.parse(localStorage.getItem("user"));
   const {
     handleSubmit,
     register,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, defaultValues },
+    setValue,
   } = useForm({
     defaultValues: {
       first_name: user?.first_name || "",
@@ -90,6 +96,61 @@ export default function UserProfileEdit() {
     }
   };
 
+  const handleOpenFileClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  // Function to handle file selection
+  const handleFileSelect = async (e) => {
+    const selectedFile = e.target.files[0];
+    try {
+      if (selectedFile) {
+        const formData = new FormData();
+        formData.append("profile", selectedFile);
+
+        const user = JSON.parse(localStorage.getItem("user"));
+
+        const response = await axios.post(
+          "http://localhost:8080/api/user/upload-profile",
+          formData,
+          {
+            headers: {
+              "login-token": user?.token,
+              "content-type": "multipart/form-data",
+            },
+          }
+        );
+
+        await axios.post(
+          "/api/user/update-profile",
+          {
+            profile: response.data.data.imageUrl,
+          },
+          { headers: { "login-token": user?.token } }
+        );
+        setValue("profile", response.data.data.imageUrl);
+        const updatedUser = { ...user, profile: response.data.data.imageUrl };
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+        toast({
+          title: "Profile Image Updated successfully",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    } catch (e) {
+      toast({
+        title: "BAD REQUEST",
+        description: e?.response?.data?.message || e.message,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
   return (
     <Flex align={"center"} justify={"center"}>
       <Stack
@@ -105,10 +166,31 @@ export default function UserProfileEdit() {
         <Heading lineHeight={1.1} fontSize={{ base: "2xl", sm: "3xl" }}>
           User Profile
         </Heading>
-
+        <input
+          type="file"
+          ref={fileInputRef}
+          style={{ display: "none" }}
+          onChange={handleFileSelect}
+        />
         <FormControl id="userName">
           <Center>
-            <Avatar size="xl" src={""}></Avatar>
+            <Avatar
+              type="file"
+              size="xl"
+              src={`http://localhost:8080/${defaultValues?.profile}`}
+            >
+              <AvatarBadge
+                as={IconButton}
+                type="file"
+                size="sm"
+                rounded="full"
+                top="-10px"
+                colorScheme="red"
+                aria-label="remove Image"
+                icon={<EditIcon />}
+                onClick={handleOpenFileClick}
+              />
+            </Avatar>
           </Center>
         </FormControl>
         <SimpleGrid columns={{ sm: 1, md: 2 }} spacing={3}>
@@ -152,7 +234,7 @@ export default function UserProfileEdit() {
               id="dob"
               name="dob"
               {...register("dob", {
-                required: "dob is required",
+                required: "DOB is required",
               })}
             />
             <FormErrorMessage>
@@ -170,7 +252,7 @@ export default function UserProfileEdit() {
             <Select
               placeholder="Select Gender"
               {...register("gender", {
-                required: "gender is required",
+                required: "Gender is required",
               })}
             >
               <option value="male">Male</option>
@@ -190,7 +272,7 @@ export default function UserProfileEdit() {
             <Select
               placeholder="Select Qualification"
               {...register("qualification", {
-                required: "qualification is required",
+                required: "Qualification is required",
               })}
             >
               <option value="">All</option>

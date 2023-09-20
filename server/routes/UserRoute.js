@@ -18,20 +18,20 @@ var upload = multer({
   fileFilter: function (req, file, cb) {
     cb(null, true);
   },
-  limits: {
-    fileSize: 1024 * 1024 * 2,
-  },
+  // limits: {
+  //   fileSize: 1024 * 1024 * 2,
+  // },
 });
 
 const middleware = async (err, req, res, next) => {
-  console.log(req.files);
+  // console.log(req.files);
   if (err) {
-    var response = {
+    console.log(err.message);
+    return res.status(422).json({
       success: false,
       message: "Violation for file validation.",
       error: err.message,
-    };
-    return res.status(422).json(response);
+    });
   }
   next();
 };

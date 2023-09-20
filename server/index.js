@@ -14,6 +14,7 @@ const UserRoutes = require("./routes/UserRoute");
 app.use(cors());
 
 mongodb();
+app.use("/uploads", express.static("uploads"));
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(
   bodyParser.urlencoded({
