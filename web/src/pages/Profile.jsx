@@ -28,8 +28,9 @@ export default function UserProfileEdit() {
   const {
     handleSubmit,
     register,
-    formState: { errors, isSubmitting, defaultValues },
+    formState: { errors, isSubmitting },
     setValue,
+    watch
   } = useForm({
     defaultValues: {
       first_name: user?.first_name || "",
@@ -42,6 +43,8 @@ export default function UserProfileEdit() {
       email: user?.email || "",
     },
   });
+
+  const profile=watch('profile');
 
   const submitHandler = async (values) => {
     const {
@@ -113,7 +116,7 @@ export default function UserProfileEdit() {
         const user = JSON.parse(localStorage.getItem("user"));
 
         const response = await axios.post(
-          "http://localhost:8080/api/user/upload-profile",
+          "/api/user/upload-profile",
           formData,
           {
             headers: {
@@ -177,7 +180,7 @@ export default function UserProfileEdit() {
             <Avatar
               type="file"
               size="xl"
-              src={`http://localhost:8080/${defaultValues?.profile}`}
+              src={`${import.meta.env.VITE_BASE_URL}/${profile}`}
             >
               <AvatarBadge
                 as={IconButton}
