@@ -30,7 +30,7 @@ export default function UserProfileEdit() {
     register,
     formState: { errors, isSubmitting },
     setValue,
-    watch
+    watch,
   } = useForm({
     defaultValues: {
       first_name: user?.first_name || "",
@@ -44,7 +44,7 @@ export default function UserProfileEdit() {
     },
   });
 
-  const profile=watch('profile');
+  const profile = watch("profile");
 
   const submitHandler = async (values) => {
     const {
@@ -57,19 +57,15 @@ export default function UserProfileEdit() {
       qualification,
     } = values;
     try {
-      await axios.post(
-        "/api/user/update-profile",
-        {
-          contact,
-          dob,
-          gender,
-          qualification,
-          profile,
-          first_name,
-          last_name,
-        },
-        { headers: { "login-token": user?.token } }
-      );
+      await axios.post("/api/user/update-profile", {
+        contact,
+        dob,
+        gender,
+        qualification,
+        profile,
+        first_name,
+        last_name,
+      });
       toast({
         title: "Account Update",
         description: "Hurray, Your Profile updated successfully",
@@ -120,7 +116,6 @@ export default function UserProfileEdit() {
           formData,
           {
             headers: {
-              "login-token": user?.token,
               "content-type": "multipart/form-data",
             },
           }
@@ -131,7 +126,6 @@ export default function UserProfileEdit() {
           {
             profile: response.data.data.imageUrl,
           },
-          { headers: { "login-token": user?.token } }
         );
         setValue("profile", response.data.data.imageUrl);
         const updatedUser = { ...user, profile: response.data.data.imageUrl };

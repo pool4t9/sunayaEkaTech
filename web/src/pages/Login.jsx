@@ -42,15 +42,8 @@ const Login = () => {
       localStorage.setItem(
         "user",
         JSON.stringify({
-          first_name: user.first_name,
-          last_name: user.last_name,
-          contact: user.contact,
-          dob: user.dob,
-          gender: user.gender,
-          qualification: user.qualification,
           email: user.email,
           token: token,
-          profile: user.profile,
         })
       );
       localStorage.setItem("step", profileCompleted ? 3 : 2);

@@ -4,7 +4,7 @@ const UserServices = {
   getUserData: async function (filter) {
     let data;
     try {
-      data = await User.findOne(filter);
+      data = await User.findOne(filter).lean();
       return data;
     } catch (e) {
       throw new Error(e.message);
@@ -35,5 +35,4 @@ const UserServices = {
   },
 };
 
-
-module.exports=UserServices;
+module.exports = UserServices;

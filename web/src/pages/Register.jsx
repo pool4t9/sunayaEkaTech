@@ -16,41 +16,56 @@ import {
 import axios from "../axios";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import useFetch from "../hooks/useFetch";
 
 // eslint-disable-next-line react/prop-types
 const Form2 = ({ setStep }) => {
   const toast = useToast();
   const user = JSON.parse(localStorage.getItem("user"));
   const [profile, setProfile] = useState("");
+
+  let { loading, error, fetchedData } = useFetch("/api/user/get-profile");
+
+  useEffect(() => {}, []);
+
   const {
     handleSubmit,
     register,
     formState: { errors, isSubmitting },
-  } = useForm({
-    defaultValues: {
-      first_name: user?.first_name || "",
-      last_name: user?.last_name || "",
-      contact: user?.contact || "",
-      dob: user?.dob || "",
-      gender: user?.gender || "",
-      qualification: user?.qualification || "",
-      profile: user?.profile || "",
+    setValue,
+  } = useForm(
+    {
+      defaultValues: {
+        first_name: fetchedData?.profile?.first_name || "",
+        last_name: fetchedData?.profile?.last_name || "",
+        contact: fetchedData?.profile?.contact || "",
+        dob: fetchedData?.profile?.dob || "",
+        gender: fetchedData?.profile?.gender || "",
+        qualification: fetchedData?.profile?.qualification || "",
+        profile: fetchedData?.profile?.profile || "",
+      },
     },
-  });
+    [fetchedData]
+  );
+
+  useEffect(() => {
+    setValue("first_name", fetchedData?.profile?.first_name);
+    setValue("last_name", fetchedData?.profile?.last_name);
+  }, [fetchedData, setValue]);
+
+  if (loading) return <div>Loading</div>;
+  if (error) return <div>{error}</div>;
+
   const submitHandler = async (values) => {
     const { contact, dob, gender, qualification } = values;
     try {
-      await axios.post(
-        "/api/user/update-profile",
-        {
-          contact,
-          dob,
-          gender,
-          qualification,
-          profile,
-        },
-        { headers: { "login-token": user?.token } }
-      );
+      await axios.post("/api/user/update-profile", {
+        contact,
+        dob,
+        gender,
+        qualification,
+        profile,
+      });
       setStep(3);
       toast({
         title: "Account Setup successfully",

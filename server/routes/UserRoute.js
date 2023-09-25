@@ -51,7 +51,7 @@ router.post(
 );
 
 router.post("/login", UserController.login);
-router.post("/get-profile", UserMiddleware.protect, UserController.getProfile);
+router.get("/get-profile", UserMiddleware.protect, UserController.getProfile);
 router.post(
   "/update-password",
   UserMiddleware.protect,

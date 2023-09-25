@@ -134,6 +134,7 @@ const UserController = {
         _id: req.sessionDetails._id,
       });
       delete profile.password;
+      console.log(profile)
       return res.status(200).json({
         success: true,
         message: "User profile",
