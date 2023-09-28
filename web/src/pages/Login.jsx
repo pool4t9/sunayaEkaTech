@@ -79,7 +79,6 @@ const Login = () => {
         p={6}
         m="10px auto"
         as="form"
-        onSubmit={handleSubmit(submitHandler)}
       >
         <FormControl mt="2%" isInvalid={errors.email} isRequired>
           <FormLabel htmlFor="email" fontWeight={"normal"}>
@@ -109,6 +108,7 @@ const Login = () => {
             <Input
               pr="4.5rem"
               type={show ? "text" : "password"}
+              id="password"
               placeholder="Enter password"
               {...register("password", {
                 required: "Password is required",
@@ -148,6 +148,7 @@ const Login = () => {
           mt={"3%"}
           isLoading={isSubmitting}
           loadingText="Submitting"
+          onClick={handleSubmit(submitHandler)}
         >
           Login
         </Button>

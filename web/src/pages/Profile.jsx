@@ -6,7 +6,6 @@ import {
   Heading,
   Input,
   Stack,
-  useColorModeValue,
   Avatar,
   Center,
   SimpleGrid,
@@ -57,7 +56,7 @@ export default function UserProfileEdit() {
     setValue("qualification", fetchedData?.profile.qualification);
     setValue("profile", fetchedData?.profile.profile);
     setValue("email", fetchedData?.profile.email);
-  }, [fetchedData]);
+  }, [fetchedData, setValue]);
 
   const profile = watch("profile");
 
@@ -105,7 +104,8 @@ export default function UserProfileEdit() {
     }
   };
 
-  const handleOpenFileClick = () => {
+  const handleOpenFileClick = (e) => {
+    e.preventDefault()
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
@@ -113,6 +113,7 @@ export default function UserProfileEdit() {
 
   // Function to handle file selection
   const handleFileSelect = async (e) => {
+    e.preventDefault()
     const selectedFile = e.target.files[0];
     try {
       if (selectedFile) {
@@ -156,8 +157,7 @@ export default function UserProfileEdit() {
       <Stack
         spacing={4}
         w={"full"}
-        maxW={"2xl"}
-        bg={useColorModeValue("white", "gray.700")}
+        maxW={"xl"}
         rounded={"xl"}
         boxShadow={"lg"}
         p={6}
@@ -250,6 +250,7 @@ export default function UserProfileEdit() {
           >
             <FormLabel htmlFor="gender">Gender</FormLabel>
             <Select
+            id="gender"
               placeholder="Select Gender"
               {...register("gender", {
                 required: "Gender is required",
@@ -270,6 +271,7 @@ export default function UserProfileEdit() {
           >
             <FormLabel htmlFor="qualification">Highest Qualification</FormLabel>
             <Select
+            id="qualification"
               placeholder="Select Qualification"
               {...register("qualification", {
                 required: "Qualification is required",
@@ -284,9 +286,10 @@ export default function UserProfileEdit() {
           </FormControl>
         </SimpleGrid>
         <FormControl spacing={3}>
-          <FormLabel>Email address</FormLabel>
+          <FormLabel htmlFor="email" >Email address</FormLabel>
           <Input
             type="email"
+            id="email"
             placeholder="Email"
             {...register("email", {
               required: "Email is required",

@@ -16,7 +16,7 @@ const Hero = () => {
           fontSize={{ base: "2xl", sm: "4xl", md: "6xl" }}
           lineHeight={"110%"}
         >
-          Sunaya <br />
+          Gensis <br />
           <Text as={"span"} color={"green.400"}>
             {/* your audience */}
           </Text>
