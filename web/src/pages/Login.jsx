@@ -23,6 +23,11 @@ const Login = () => {
   const navigate = useNavigate();
 
   const toast = useToast();
+  const user = localStorage.getItem("user") || null;
+
+  useEffect(() => {
+    if (user) navigate("/profile");
+  }, [user, navigate]);
 
   const {
     handleSubmit,
@@ -61,12 +66,6 @@ const Login = () => {
     }
   };
 
-  const user = localStorage.getItem("user") || null;
-
-  useEffect(() => {
-    if (user) navigate("/profile");
-  }, [user, navigate]);
-
   return (
     <>
       <Heading w="100%" textAlign={"center"} fontWeight="normal">
@@ -80,8 +79,9 @@ const Login = () => {
         p={6}
         m="10px auto"
         as="form"
+        onSubmit={handleSubmit(submitHandler)}
       >
-        <FormControl mt="2%" isInvalid={errors.email}>
+        <FormControl mt="2%" isInvalid={errors.email} isRequired>
           <FormLabel htmlFor="email" fontWeight={"normal"}>
             Email address
           </FormLabel>
@@ -101,7 +101,7 @@ const Login = () => {
           </FormErrorMessage>
         </FormControl>
 
-        <FormControl isInvalid={errors.password}>
+        <FormControl isInvalid={errors.password} isRequired>
           <FormLabel htmlFor="password" fontWeight={"normal"} mt="2%">
             Password
           </FormLabel>
@@ -112,7 +112,10 @@ const Login = () => {
               placeholder="Enter password"
               {...register("password", {
                 required: "Password is required",
-                minLength: { value: 8, message: "Minimum length should be 8" },
+                minLength: {
+                  value: 8,
+                  message: "Minimum length should be 8",
+                },
               })}
             />
             <InputRightElement width="4.5rem">
@@ -143,7 +146,6 @@ const Login = () => {
           variant="outline"
           w={"7rem"}
           mt={"3%"}
-          onClick={handleSubmit(submitHandler)}
           isLoading={isSubmitting}
           loadingText="Submitting"
         >

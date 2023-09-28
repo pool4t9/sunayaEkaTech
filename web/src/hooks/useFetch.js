@@ -12,13 +12,11 @@ function useFetch(url) {
     setLoading(true);
     setData(null);
     setError(null);
-    // const source = axios.CancelToken.source();
     async function fetch() {
       try {
         const { data } = await axios.get(url);
         setData(data);
       } catch (e) {
-        console.log(e.message);
         setError(
           "Something went wrong, Check your internet connection and try again"
         );

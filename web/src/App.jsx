@@ -12,7 +12,7 @@ import NotFound from "./pages/NotFound";
 
 function App() {
   return (
-    <main>
+    <div className="main">
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -24,7 +24,7 @@ function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/*" element={<NotFound />} />
       </Routes>
-    </main>
+    </div>
   );
 }
 

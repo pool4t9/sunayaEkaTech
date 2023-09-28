@@ -19,12 +19,16 @@ import {
 import axios from "../axios";
 import { useForm } from "react-hook-form";
 import { EditIcon } from "@chakra-ui/icons";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
+import useFetch from "../hooks/useFetch";
+import Loader from "../components/Loader";
+import AlertBanner from "../components/AlertBanner";
 
 export default function UserProfileEdit() {
   const toast = useToast();
   const fileInputRef = useRef(null);
-  const user = JSON.parse(localStorage.getItem("user"));
+
+  const { loading, error, fetchedData } = useFetch("/api/user/get-profile");
   const {
     handleSubmit,
     register,
@@ -33,18 +37,35 @@ export default function UserProfileEdit() {
     watch,
   } = useForm({
     defaultValues: {
-      first_name: user?.first_name || "",
-      last_name: user?.last_name || "",
-      contact: user?.contact || "",
-      dob: user?.dob || "",
-      gender: user?.gender || "",
-      qualification: user?.qualification || "",
-      profile: user?.profile || "",
-      email: user?.email || "",
+      first_name: "",
+      last_name: "",
+      contact: "",
+      dob: "",
+      gender: "",
+      qualification: "",
+      profile: "",
+      email: "",
     },
   });
 
+  useEffect(() => {
+    setValue("first_name", fetchedData?.profile.first_name);
+    setValue("last_name", fetchedData?.profile.last_name);
+    setValue("contact", fetchedData?.profile.contact);
+    setValue("dob", fetchedData?.profile.dob);
+    setValue("gender", fetchedData?.profile.gender);
+    setValue("qualification", fetchedData?.profile.qualification);
+    setValue("profile", fetchedData?.profile.profile);
+    setValue("email", fetchedData?.profile.email);
+  }, [fetchedData]);
+
   const profile = watch("profile");
+
+  if (loading) return <Loader />;
+  if (error)
+    return (
+      <AlertBanner status={"error"} message={error} title={"Server Error"} />
+    );
 
   const submitHandler = async (values) => {
     const {
@@ -73,17 +94,6 @@ export default function UserProfileEdit() {
         duration: 3000,
         isClosable: true,
       });
-      let updatedUser = {
-        ...user,
-        contact,
-        dob,
-        gender,
-        qualification,
-        first_name,
-        last_name,
-        profile,
-      };
-      localStorage.setItem("user", JSON.stringify(updatedUser));
     } catch (e) {
       toast({
         title: "BAD REQUEST",
@@ -109,8 +119,6 @@ export default function UserProfileEdit() {
         const formData = new FormData();
         formData.append("profile", selectedFile);
 
-        const user = JSON.parse(localStorage.getItem("user"));
-
         const response = await axios.post(
           "/api/user/upload-profile",
           formData,
@@ -121,15 +129,10 @@ export default function UserProfileEdit() {
           }
         );
 
-        await axios.post(
-          "/api/user/update-profile",
-          {
-            profile: response.data.data.imageUrl,
-          },
-        );
+        await axios.post("/api/user/update-profile", {
+          profile: response.data.data.imageUrl,
+        });
         setValue("profile", response.data.data.imageUrl);
-        const updatedUser = { ...user, profile: response.data.data.imageUrl };
-        localStorage.setItem("user", JSON.stringify(updatedUser));
         toast({
           title: "Profile Image Updated successfully",
           status: "success",
@@ -288,6 +291,7 @@ export default function UserProfileEdit() {
             {...register("email", {
               required: "Email is required",
             })}
+            isReadOnly={true}
             disabled
           />
         </FormControl>
