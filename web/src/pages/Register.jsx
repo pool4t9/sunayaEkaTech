@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -12,6 +12,10 @@ import {
   useToast,
   Stack,
   Text,
+  Center,
+  Avatar,
+  AvatarBadge,
+  IconButton,
 } from "@chakra-ui/react";
 import axios from "../axios";
 import { Link, useNavigate } from "react-router-dom";
@@ -19,12 +23,14 @@ import { useForm } from "react-hook-form";
 import useFetch from "../hooks/useFetch";
 import Loader from "../components/Loader";
 import AlertBanner from "../components/AlertBanner";
+import { EditIcon } from "@chakra-ui/icons";
 
 // eslint-disable-next-line react/prop-types
 const Form2 = ({ setStep }) => {
   const toast = useToast();
   const user = JSON.parse(localStorage.getItem("user"));
   const [profile, setProfile] = useState("");
+  const fileInputRef = useRef(null);
 
   let { loading, error, fetchedData } = useFetch("/api/user/get-profile");
 
@@ -59,6 +65,13 @@ const Form2 = ({ setStep }) => {
       <AlertBanner status={"error"} message={error} title={"Server Error"} />
     );
 
+  const handleOpenFileClick = (e) => {
+    e.preventDefault()
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
   const submitHandler = async (values) => {
     const { contact, dob, gender, qualification } = values;
     try {
@@ -90,7 +103,10 @@ const Form2 = ({ setStep }) => {
       });
     }
   };
+  
   const uploadImage = async (e) => {
+    e.preventDefault();
+    
     try {
       const file = e.target.files[0];
       const formData = new FormData();
@@ -129,182 +145,196 @@ const Form2 = ({ setStep }) => {
       <Heading w="100%" textAlign={"center"} fontWeight="normal" mb="2%">
         Update Your Details
       </Heading>
-      <Box
-        borderWidth="1px"
-        rounded="lg"
-        shadow="1px 1px 3px rgba(0,0,0,0.3)"
-        maxWidth={500}
-        p={6}
-        m="10px auto"
-        as="form"
-        onSubmit={handleSubmit(submitHandler)}
-      >
-        <Flex mt={"2%"}>
-          <FormControl mr="5%">
-            <FormLabel htmlFor="first-name" fontWeight={"normal"}>
-              First name
-            </FormLabel>
-            <Input
-              id="first-name"
-              placeholder="First name"
-              name="first_name"
-              isDisabled={true}
-              {...register("first_name")}
-            />
-          </FormControl>
-
-          <FormControl>
-            <FormLabel htmlFor="last-name" fontWeight={"normal"}>
-              Last name
-            </FormLabel>
-            <Input
-              id="last-name"
-              placeholder="Last name"
-              name="last_name"
-              {...register("last_name")}
-              isDisabled={true}
-            />
-          </FormControl>
-        </Flex>
-        <Flex mt={"2%"}>
-          <FormControl mr="5%" isInvalid={errors.contact}>
-            <FormLabel htmlFor="contact" fontWeight={"normal"}>
-              Contact
-            </FormLabel>
-            <Input
-              type="text"
-              id="contact"
-              placeholder="Contact Number"
-              name="contact"
-              {...register("contact", {
-                required: "contact is required",
-              })}
-            />
-            <FormErrorMessage>
-              {errors.contact && errors.contact.message}
-            </FormErrorMessage>
-          </FormControl>
-          <FormControl isInvalid={errors.dob}>
-            <FormLabel htmlFor="dob" fontWeight={"normal"}>
-              DOB
-            </FormLabel>
-            <Input
-              type="date"
-              id="dob"
-              name="dob"
-              {...register("dob", {
-                required: "dob is required",
-              })}
-            />
-            <FormErrorMessage>
-              {errors.dob && errors.dob.message}
-            </FormErrorMessage>
-          </FormControl>
-        </Flex>
-
-        <Flex mt={"2%"}>
-          <FormControl
-            className="form-floating"
-            mr={"5%"}
-            isInvalid={errors.gender}
-          >
-            <FormLabel
-              htmlFor="gender"
-              fontSize="sm"
-              fontWeight="sm"
-              color="gray.700"
-              _dark={{
-                color: "gray.50",
-              }}
-            >
-              Gender
-            </FormLabel>
-            <Select
-              placeholder="Select Gender"
-              id="gender"
-              focusBorderColor="brand.400"
-              shadow="sm"
-              size="sm"
-              w="full"
-              rounded="md"
-              {...register("gender", {
-                required: "Gender is required",
-              })}
-            >
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-            </Select>
-            <FormErrorMessage>
-              {errors.gender && errors.gender.message}
-            </FormErrorMessage>
-          </FormControl>
-          <FormControl
-            className="form-floating"
-            isInvalid={errors.qualification}
-          >
-            <FormLabel
-              htmlFor="qualification"
-              fontSize="sm"
-              fontWeight="md"
-              color="gray.700"
-              _dark={{
-                color: "gray.50",
-              }}
-            >
-              Highest Qualification
-            </FormLabel>
-            <Select
-              placeholder="Select Qualification"
-              // selected={qualification}
-              // onChange={changeHandler}
-              name="qualification"
-              id="qualification"
-              focusBorderColor="brand.400"
-              shadow="sm"
-              size="sm"
-              w="full"
-              rounded="md"
-              {...register("qualification", {
-                required: "qualification is required",
-              })}
-            >
-              <option value="">All</option>
-              <option value="option1">Option 1</option>
-              <option value="option2">Option 2</option>
-              <option value="option3">Option 3</option>
-            </Select>
-            <FormErrorMessage>
-              {errors.qualification && errors.qualification.message}
-            </FormErrorMessage>
-          </FormControl>
-        </Flex>
-        <FormControl isInvalid={errors.profile}>
-          <FormLabel htmlFor="profile" fontWeight={"normal"}>
-            Profile
-          </FormLabel>
-          <input
+      <FormControl id="userName">
+        <input
+          type="file"
+          ref={fileInputRef}
+          style={{ display: "none" }}
+          onChange={uploadImage}
+        />
+        <Center>
+          <Avatar
             type="file"
-            id="profile"
-            name="profile"
-            accept="image/png, image/jpeg"
-            onChange={uploadImage}
+            size="xl"
+            src={`${import.meta.env.VITE_BASE_URL}/${profile}`}
+          >
+            <AvatarBadge
+              as={IconButton}
+              type="file"
+              size="sm"
+              rounded="full"
+              top="-10px"
+              colorScheme="green"
+              aria-label="remove Image"
+              icon={<EditIcon />}
+              onClick={handleOpenFileClick}
+            />
+          </Avatar>
+        </Center>
+      </FormControl>
+      <Flex mt={"2%"}>
+        <FormControl mr="5%">
+          <FormLabel htmlFor="first-name" fontWeight={"normal"}>
+            First name
+          </FormLabel>
+          <Input
+            id="first-name"
+            placeholder="First name"
+            name="first_name"
+            isDisabled={true}
+            {...register("first_name")}
+          />
+        </FormControl>
+
+        <FormControl>
+          <FormLabel htmlFor="last-name" fontWeight={"normal"}>
+            Last name
+          </FormLabel>
+          <Input
+            id="last-name"
+            placeholder="Last name"
+            name="last_name"
+            {...register("last_name")}
+            isDisabled={true}
+          />
+        </FormControl>
+      </Flex>
+      <Flex mt={"2%"}>
+        <FormControl mr="5%" isInvalid={errors.contact}>
+          <FormLabel htmlFor="contact" fontWeight={"normal"}>
+            Contact
+          </FormLabel>
+          <Input
+            type="text"
+            id="contact"
+            placeholder="Contact Number"
+            name="contact"
+            {...register("contact", {
+              required: "contact is required",
+            })}
           />
           <FormErrorMessage>
-            {errors.profile && errors.profile.message}
+            {errors.contact && errors.contact.message}
           </FormErrorMessage>
         </FormControl>
-        <Button
-          colorScheme="teal"
-          variant="outline"
-          w={"7rem"}
-          mt={"3%"}
-          isLoading={isSubmitting}
-          loadingText="Submitting"
+        <FormControl isInvalid={errors.dob}>
+          <FormLabel htmlFor="dob" fontWeight={"normal"}>
+            DOB
+          </FormLabel>
+          <Input
+            type="date"
+            id="dob"
+            name="dob"
+            {...register("dob", {
+              required: "dob is required",
+            })}
+          />
+          <FormErrorMessage>
+            {errors.dob && errors.dob.message}
+          </FormErrorMessage>
+        </FormControl>
+      </Flex>
+
+      <Flex mt={"2%"}>
+        <FormControl
+          className="form-floating"
+          mr={"5%"}
+          isInvalid={errors.gender}
         >
-          Submit
-        </Button>
-      </Box>
+          <FormLabel
+            htmlFor="gender"
+            fontSize="sm"
+            fontWeight="sm"
+            color="gray.700"
+            _dark={{
+              color: "gray.50",
+            }}
+          >
+            Gender
+          </FormLabel>
+          <Select
+            placeholder="Select Gender"
+            id="gender"
+            focusBorderColor="brand.400"
+            shadow="sm"
+            size="sm"
+            w="full"
+            rounded="md"
+            {...register("gender", {
+              required: "Gender is required",
+            })}
+          >
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </Select>
+          <FormErrorMessage>
+            {errors.gender && errors.gender.message}
+          </FormErrorMessage>
+        </FormControl>
+        <FormControl className="form-floating" isInvalid={errors.qualification}>
+          <FormLabel
+            htmlFor="qualification"
+            fontSize="sm"
+            fontWeight="md"
+            color="gray.700"
+            _dark={{
+              color: "gray.50",
+            }}
+          >
+            Highest Qualification
+          </FormLabel>
+          <Select
+            placeholder="Select Qualification"
+            // selected={qualification}
+            // onChange={changeHandler}
+            name="qualification"
+            id="qualification"
+            focusBorderColor="brand.400"
+            shadow="sm"
+            size="sm"
+            w="full"
+            rounded="md"
+            {...register("qualification", {
+              required: "qualification is required",
+            })}
+          >
+            <option value="">All</option>
+            <option value="option1">Option 1</option>
+            <option value="option2">Option 2</option>
+            <option value="option3">Option 3</option>
+          </Select>
+          <FormErrorMessage>
+            {errors.qualification && errors.qualification.message}
+          </FormErrorMessage>
+        </FormControl>
+      </Flex>
+      <FormControl isInvalid={errors.profile}>
+        <FormLabel htmlFor="profile" fontWeight={"normal"}>
+          Profile
+        </FormLabel>
+        <input
+          type="file"
+          id="profile"
+          name="profile"
+          accept="image/png, image/jpeg"
+          onChange={uploadImage}
+        />
+        <FormErrorMessage>
+          {errors.profile && errors.profile.message}
+        </FormErrorMessage>
+      </FormControl>
+      <Button
+        colorScheme="teal"
+        variant="outline"
+        w={"7rem"}
+        mt={"3%"}
+        isLoading={isSubmitting}
+        loadingText="Submitting"
+        onClick={handleSubmit(submitHandler)}
+      >
+        Submit
+      </Button>
     </>
   );
 };
@@ -508,7 +538,7 @@ const Register = () => {
         borderWidth="1px"
         rounded="lg"
         shadow="1px 1px 3px rgba(0,0,0,0.3)"
-        maxWidth={800}
+        maxWidth={500}
         p={6}
         m="10px auto"
         as="form"

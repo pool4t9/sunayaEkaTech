@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import "./App.css";
 import Navbar from "./components/Navbar";
 import Register from "./pages/Register";
@@ -9,8 +9,16 @@ import UpdatePassword from "./pages/UpdatePassword";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
+import { useEffect } from "react";
 
 function App() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const step = localStorage.getItem("steps");
+    if (step == 2) navigate("/register");
+  }, [navigate]);
+
   return (
     <div className="main">
       <Navbar />

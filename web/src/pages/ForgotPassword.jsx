@@ -56,6 +56,7 @@ const ForgotPassword = () => {
         boxShadow={"lg"}
         p={6}
         my={12}
+        as={'form'}
       >
         <Heading lineHeight={1.1} fontSize={{ base: "2xl", md: "3xl" }}>
           Forgot your password?
