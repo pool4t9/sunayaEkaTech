@@ -14,15 +14,21 @@ const AuthService = {
       throw Error(e.message);
     }
   },
-  async VerifyToken(token) {
-    let decode;
-    try {
-      decode = JWT.verify(token, process.env.JWT_SECRET);
-      return decode;
-    } catch (e) {
-      console.log(e);
-      throw Error(e.message);
-    }
+  VerifyToken(token) {
+    // let decode;
+    // try {
+    //   decode = JWT.verify(token, process.env.JWT_SECRET);
+    //   return decode;
+    // } catch (e) {
+    //   console.log(e);
+    //   throw Error(e.message);
+    // }
+    var data
+    JWT.decode(token, process.env.JWT_SECRET, (err, decoded) => {
+      if (err) data = {};
+      else data = decoded;
+    });
+    return data;
   },
   async generatePassword(password) {
     let hashPassword = "NA";

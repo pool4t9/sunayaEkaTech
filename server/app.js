@@ -3,8 +3,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const app = express();
-require("dotenv").config();
-const mongodb = require("./config/db");
+// const mongodb = require("./config/db");
 
 /**
  * @description import custom route
@@ -13,7 +12,7 @@ const UserRoutes = require("./routes/UserRoute");
 
 app.use(cors());
 
-mongodb();
+// mongodb();
 app.use("/uploads", express.static("uploads"));
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(
@@ -43,8 +42,4 @@ app.use((req, res) => {
   });
 });
 
-const { PORT, NODE_ENV } = process.env;
-
-app.listen(PORT || 8080, () => {
-  console.log(`server is listing in ${NODE_ENV} on ${PORT} `);
-});
+module.exports = app;

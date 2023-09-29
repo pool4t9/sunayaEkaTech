@@ -134,7 +134,7 @@ const UserController = {
         _id: req.sessionDetails._id,
       });
       delete profile.password;
-      console.log(profile)
+      console.log(profile);
       return res.status(200).json({
         success: true,
         message: "User profile",
@@ -222,28 +222,27 @@ const UserController = {
   resetPassword: async function (req, res) {
     try {
       const { token, password } = req.body;
-      const userData = await AuthService.VerifyToken(token);
-      if (userData.email) {
-        const data = await UserServices.updateUser(
-          { email: userData.email },
-          { password: await AuthService.generatePassword(password) }
-        );
-        if (data) {
-          return res.status(200).json({
-            success: true,
-            message: "Password Updated successfully",
-          });
-        } else {
-          return res.status(400).json({
-            success: false,
-            message: "Invalid token, something went wrong",
-          });
-        }
-      } else {
+      const userData = AuthService.VerifyToken(token);
+      if (!userData) {
         return res.status(400).json({
           success: false,
           message: "Invalid token",
           error: e.message,
+        });
+      }
+      const data = await UserServices.updateUser(
+        { email: userData.email },
+        { password: await AuthService.generatePassword(password) }
+      );
+      if (data) {
+        return res.status(200).json({
+          success: true,
+          message: "Password Updated successfully",
+        });
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid token, something went wrong",
         });
       }
     } catch (e) {
