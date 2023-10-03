@@ -17,7 +17,7 @@ const UserController = {
       });
       if (!isExists) {
         const user = await UserServices.addUser(formData);
-        const token = await AuthService.generateToken({ userId: user._id });
+        const token = AuthService.generateToken({ userId: user._id });
         if (user) {
           return res.status(201).json({
             success: true,
@@ -134,7 +134,6 @@ const UserController = {
         _id: req.sessionDetails._id,
       });
       delete profile.password;
-      console.log(profile);
       return res.status(200).json({
         success: true,
         message: "User profile",
@@ -227,7 +226,6 @@ const UserController = {
         return res.status(400).json({
           success: false,
           message: "Invalid token",
-          error: e.message,
         });
       }
       const data = await UserServices.updateUser(

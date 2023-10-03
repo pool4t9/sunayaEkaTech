@@ -11,8 +11,8 @@ const UserMiddleware = {
           message: "loginToken Not Found",
         });
       }
-      const userData = await AuthService.VerifyToken(loginToken);
-      if (userData.userId !== "NA") {
+      const userData = AuthService.VerifyToken(loginToken);
+      if (userData?.userId) {
         const { userId } = userData;
         const user = await UserService.getUserData({ _id: userId });
         if (user) {
@@ -21,19 +21,19 @@ const UserMiddleware = {
           next();
         } else {
           return res.status(404).json({
-            success: 0,
+            success: false,
             message: "something went wrong",
           });
         }
       } else {
         return res.status(400).json({
-          success: 0,
+          success: false,
           message: "Invalid token",
         });
       }
     } catch (e) {
       return res.status(500).json({
-        success: 0,
+        success: false,
         msg: "server error",
         error: e.message,
       });

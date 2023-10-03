@@ -2,31 +2,22 @@ const JWT = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
 const AuthService = {
-  async generateToken(data) {
+  generateToken(data) {
     let token;
     try {
       token = JWT.sign(data, process.env.JWT_SECRET, {
         expiresIn: "30d",
       });
-      return token;
     } catch (e) {
-      console.log(e);
+      token = null;
       throw Error(e.message);
     }
+    return token;
   },
   VerifyToken(token) {
-    // let decode;
-    // try {
-    //   decode = JWT.verify(token, process.env.JWT_SECRET);
-    //   return decode;
-    // } catch (e) {
-    //   console.log(e);
-    //   throw Error(e.message);
-    // }
-    var data
-    JWT.decode(token, process.env.JWT_SECRET, (err, decoded) => {
-      if (err) data = {};
-      else data = decoded;
+    const data = JWT.decode(token, process.env.JWT_SECRET, (err, decoded) => {
+      if (err) return {};
+      else return decoded;
     });
     return data;
   },
@@ -37,7 +28,6 @@ const AuthService = {
       hashPassword = await bcrypt.hash(password, salt);
       return hashPassword;
     } catch (e) {
-      console.log(e);
       throw Error(e.message);
     }
   },
@@ -47,7 +37,6 @@ const AuthService = {
       data = await bcrypt.compare(password, hashPassword);
       return data;
     } catch (e) {
-      console.log(e);
       throw Error(e.message);
     }
   },

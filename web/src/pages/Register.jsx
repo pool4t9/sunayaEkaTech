@@ -66,7 +66,7 @@ const Form2 = ({ setStep }) => {
     );
 
   const handleOpenFileClick = (e) => {
-    e.preventDefault()
+    e.preventDefault();
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
@@ -103,10 +103,10 @@ const Form2 = ({ setStep }) => {
       });
     }
   };
-  
+
   const uploadImage = async (e) => {
     e.preventDefault();
-    
+
     try {
       const file = e.target.files[0];
       const formData = new FormData();
@@ -299,10 +299,10 @@ const Form2 = ({ setStep }) => {
               required: "qualification is required",
             })}
           >
-            <option value="">All</option>
-            <option value="option1">Option 1</option>
-            <option value="option2">Option 2</option>
-            <option value="option3">Option 3</option>
+            <option value="highschool">High School</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="bachelor"> Bachelor`s degree</option>
+            <option value="master"> Master`s degree</option>
           </Select>
           <FormErrorMessage>
             {errors.qualification && errors.qualification.message}

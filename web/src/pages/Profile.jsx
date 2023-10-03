@@ -105,7 +105,7 @@ export default function UserProfileEdit() {
   };
 
   const handleOpenFileClick = (e) => {
-    e.preventDefault()
+    e.preventDefault();
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
@@ -113,7 +113,7 @@ export default function UserProfileEdit() {
 
   // Function to handle file selection
   const handleFileSelect = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     const selectedFile = e.target.files[0];
     try {
       if (selectedFile) {
@@ -250,7 +250,7 @@ export default function UserProfileEdit() {
           >
             <FormLabel htmlFor="gender">Gender</FormLabel>
             <Select
-            id="gender"
+              id="gender"
               placeholder="Select Gender"
               {...register("gender", {
                 required: "Gender is required",
@@ -271,22 +271,22 @@ export default function UserProfileEdit() {
           >
             <FormLabel htmlFor="qualification">Highest Qualification</FormLabel>
             <Select
-            id="qualification"
+              id="qualification"
               placeholder="Select Qualification"
               {...register("qualification", {
                 required: "Qualification is required",
               })}
             >
-              <option value="">All</option>
-              <option value="option1">Option 1</option>
-              <option value="option2">Option 2</option>
-              <option value="option3">Option 3</option>
+              <option value="highschool">High School</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="bachelor"> Bachelor`s degree</option>
+              <option value="master"> Master`s degree</option>
             </Select>
             <FormErrorMessage>Qualification is required</FormErrorMessage>
           </FormControl>
         </SimpleGrid>
         <FormControl spacing={3}>
-          <FormLabel htmlFor="email" >Email address</FormLabel>
+          <FormLabel htmlFor="email">Email address</FormLabel>
           <Input
             type="email"
             id="email"

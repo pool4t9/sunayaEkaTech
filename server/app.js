@@ -25,7 +25,7 @@ app.use(
 app.get("/api", (req, res) => {
   var response = {
     success: 1,
-    message: "Welcome to new era of Collections",
+    message: "Server is running",
   };
   res.status(200).json(response);
 });
